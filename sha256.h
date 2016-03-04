@@ -79,79 +79,79 @@ void sha256_transform(SHA256_CTX *ctx, uchar data[])
    ctx->state[7] += h;
 }  
 
-void sha256_init(SHA256_CTX *ctx)
-{  
-   ctx->datalen = 0; 
-   ctx->bitlen[0] = 0; 
-   ctx->bitlen[1] = 0; 
-   ctx->state[0] = 0x6a09e667;
-   ctx->state[1] = 0xbb67ae85;
-   ctx->state[2] = 0x3c6ef372;
-   ctx->state[3] = 0xa54ff53a;
-   ctx->state[4] = 0x510e527f;
-   ctx->state[5] = 0x9b05688c;
-   ctx->state[6] = 0x1f83d9ab;
-   ctx->state[7] = 0x5be0cd19;
+//add multi round hash function
+void sha256_hash(SHA256_CTX *ctx, uchar data[], uchar hash[], int round){
+	while(round > 0){
+		//init sha256 data structure
+		ctx->datalen = 0;
+   		ctx->bitlen[0] = 0;
+   		ctx->bitlen[1] = 0;
+   		ctx->state[0] = 0x6a09e667;
+   		ctx->state[1] = 0xbb67ae85;
+	   	ctx->state[2] = 0x3c6ef372;
+   		ctx->state[3] = 0xa54ff53a;
+	   	ctx->state[4] = 0x510e527f;
+	   	ctx->state[5] = 0x9b05688c;
+	   	ctx->state[6] = 0x1f83d9ab;
+	   	ctx->state[7] = 0x5be0cd19;
+	
+		//update
+		uint t,i;
+		uint len = strlen((const char*)data);
+   		for (i=0; i < len; ++i) { 
+    	  	ctx->data[ctx->datalen] = data[i]; 
+      		ctx->datalen++; 
+      		if (ctx->datalen == 64) { 
+         		sha256_transform(ctx,ctx->data);
+         		DBL_INT_ADD(ctx->bitlen[0],ctx->bitlen[1],512); 
+         		ctx->datalen = 0; 
+      		}  
+   		} 
+
+	
+		//final
+		i = ctx->datalen;
+
+	   	if (ctx->datalen < 56) { 
+    	  	ctx->data[i++] = 0x80; 
+      		while (i < 56) 
+         		ctx->data[i++] = 0x00; 
+   		}	
+   		else { 
+      		ctx->data[i++] = 0x80; 
+      		while (i < 64) 
+         		ctx->data[i++] = 0x00; 
+      		sha256_transform(ctx,ctx->data);
+      		memset(ctx->data,0,56); 
+   		}
+
+   		DBL_INT_ADD(ctx->bitlen[0],ctx->bitlen[1],ctx->datalen * 8);
+   		ctx->data[63] = ctx->bitlen[0]; 
+   		ctx->data[62] = ctx->bitlen[0] >> 8; 
+   		ctx->data[61] = ctx->bitlen[0] >> 16; 
+   		ctx->data[60] = ctx->bitlen[0] >> 24; 
+   		ctx->data[59] = ctx->bitlen[1]; 
+   		ctx->data[58] = ctx->bitlen[1] >> 8; 
+   		ctx->data[57] = ctx->bitlen[1] >> 16;  
+   		ctx->data[56] = ctx->bitlen[1] >> 24; 
+   		sha256_transform(ctx,ctx->data);	
+
+   		for (i=0; i < 4; ++i) { 
+      		hash[i]    = (ctx->state[0] >> (24-i*8)) & 0x000000ff; 
+      		hash[i+4]  = (ctx->state[1] >> (24-i*8)) & 0x000000ff; 
+      		hash[i+8]  = (ctx->state[2] >> (24-i*8)) & 0x000000ff;
+      		hash[i+12] = (ctx->state[3] >> (24-i*8)) & 0x000000ff;
+      		hash[i+16] = (ctx->state[4] >> (24-i*8)) & 0x000000ff;
+      		hash[i+20] = (ctx->state[5] >> (24-i*8)) & 0x000000ff;
+      		hash[i+24] = (ctx->state[6] >> (24-i*8)) & 0x000000ff;
+      		hash[i+28] = (ctx->state[7] >> (24-i*8)) & 0x000000ff;
+   		}	
+		round --;
+	}
 }
 
-void sha256_update(SHA256_CTX *ctx, uchar data[], uint len)
-{  
-   uint t,i;
-   
-   for (i=0; i < len; ++i) { 
-      ctx->data[ctx->datalen] = data[i]; 
-      ctx->datalen++; 
-      if (ctx->datalen == 64) { 
-         sha256_transform(ctx,ctx->data);
-         DBL_INT_ADD(ctx->bitlen[0],ctx->bitlen[1],512); 
-         ctx->datalen = 0; 
-      }  
-   }  
-}  
 
-void sha256_final(SHA256_CTX *ctx, uchar hash[])
-{  
-   uint i; 
-   
-   i = ctx->datalen; 
-   
-   // Pad whatever data is left in the buffer. 
-   if (ctx->datalen < 56) { 
-      ctx->data[i++] = 0x80; 
-      while (i < 56) 
-         ctx->data[i++] = 0x00; 
-   }  
-   else { 
-      ctx->data[i++] = 0x80; 
-      while (i < 64) 
-         ctx->data[i++] = 0x00; 
-      sha256_transform(ctx,ctx->data);
-      memset(ctx->data,0,56); 
-   }  
-   
-   // Append to the padding the total message's length in bits and transform. 
-   DBL_INT_ADD(ctx->bitlen[0],ctx->bitlen[1],ctx->datalen * 8);
-   ctx->data[63] = ctx->bitlen[0]; 
-   ctx->data[62] = ctx->bitlen[0] >> 8; 
-   ctx->data[61] = ctx->bitlen[0] >> 16; 
-   ctx->data[60] = ctx->bitlen[0] >> 24; 
-   ctx->data[59] = ctx->bitlen[1]; 
-   ctx->data[58] = ctx->bitlen[1] >> 8; 
-   ctx->data[57] = ctx->bitlen[1] >> 16;  
-   ctx->data[56] = ctx->bitlen[1] >> 24; 
-   sha256_transform(ctx,ctx->data);
-   
-   // Since this implementation uses little endian byte ordering and SHA uses big endian,
-   // reverse all the bytes when copying the final state to the output hash. 
-   for (i=0; i < 4; ++i) { 
-      hash[i]    = (ctx->state[0] >> (24-i*8)) & 0x000000ff; 
-      hash[i+4]  = (ctx->state[1] >> (24-i*8)) & 0x000000ff; 
-      hash[i+8]  = (ctx->state[2] >> (24-i*8)) & 0x000000ff;
-      hash[i+12] = (ctx->state[3] >> (24-i*8)) & 0x000000ff;
-      hash[i+16] = (ctx->state[4] >> (24-i*8)) & 0x000000ff;
-      hash[i+20] = (ctx->state[5] >> (24-i*8)) & 0x000000ff;
-      hash[i+24] = (ctx->state[6] >> (24-i*8)) & 0x000000ff;
-      hash[i+28] = (ctx->state[7] >> (24-i*8)) & 0x000000ff;
-   }  
-}
+
+
+
 #endif  

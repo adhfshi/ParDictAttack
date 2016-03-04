@@ -63,9 +63,10 @@ int main(int argc, char **argv){
 	while(std::getline(dict, password)){
 		//calculate password hash
 		pw = (unsigned char *)password.c_str();
-		sha256_init(&ctx);
-		sha256_update(&ctx, pw, strlen((const char*)pw));
-		sha256_final(&ctx, hash);
+		sha256_hash(&ctx,pw,hash,100000);
+		//sha256_init(&ctx);
+		//sha256_update(&ctx, pw, strlen((const char*)pw));
+		//sha256_final(&ctx, hash);
 		for(int i=0; i<5; i++){
 			if(compare_hash(hash, target[i])){
 				std::cout<< "password found: " << password << std::endl;

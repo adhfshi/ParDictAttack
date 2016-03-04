@@ -9,9 +9,10 @@
 void hashgen(unsigned char text[], unsigned char hash[]){	
 	SHA256_CTX ctx;
 	
-	sha256_init(&ctx);
-	sha256_update(&ctx,text,strlen((const char*)text));
-	sha256_final(&ctx,hash);
+	sha256_hash(&ctx, text, hash,10000);
+	//sha256_init(&ctx);
+	//sha256_update(&ctx,text,strlen((const char*)text));
+	//sha256_final(&ctx,hash);
 	
 }
 
@@ -23,7 +24,7 @@ int main(){
 				  text5[]={"Eis9Xi99asd"},
 				  hash[32];
 
-	FILE *fp = fopen("hash_value.dat","w+");
+	FILE *fp = fopen("hash_value.dat1","w+");
 
 	hashgen(text1,hash);
 	fwrite(hash, sizeof(char), sizeof(hash), fp);
