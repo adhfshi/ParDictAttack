@@ -6,10 +6,6 @@ The "cracker.cpp" file is used to dictionary attack. We use "clock()" function t
 
 Using command "./cracker $dictionary_path $hash_value.dat_path" to crack the password hash that saved inside the .dat file. 
 
-=================================================================
-Update 3/17/2016
-Add parallelized programe (openMP version) to github.
 
-Use command "g++ -fopenmp " to compile "cracker_omp.cpp" file and submit bash "crackeromp.bash" to discovery cluster to run.
 
-output file can be found in output folder.
+ 

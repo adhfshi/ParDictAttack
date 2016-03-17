@@ -1,0 +1,58 @@
+Sender: LSF System <lsfadmin@compute-0-006>
+Subject: Job 604359: <ompcracker> in cluster <mghpcc_cluster1> Done
+
+Job <ompcracker> was submitted from host <discovery4> by user <shi.hao> in cluster <mghpcc_cluster1>.
+Job was executed on host(s) <compute-0-006>, in queue <ht-10g>, as user <shi.hao> in cluster <mghpcc_cluster1>.
+</home/shi.hao> was used as the home directory.
+</home/shi.hao/hpc_proj> was used as the working directory.
+Started at Thu Mar 17 11:10:31 2016
+Results reported at Thu Mar 17 11:13:14 2016
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+#BSUB -J ompcracker
+#BSUB -o omp.o
+#BSUB -e omp.err
+#BSUB -n 1
+#BSUB -q ht-10g
+#BSUB -cwd /home/shi.hao/hpc_proj
+
+work=/home/shi.hao/hpc_proj/
+
+cd $work
+rm omp.o omp.err
+export OMP_NUM_THREADS=10
+./crackeromp 10_million_password_list_top_10000.txt hash_value.dat
+
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :               1577.18 sec.
+    Max Memory :             14 MB
+    Average Memory :         6.64 MB
+    Total Requested Memory : -
+    Delta Memory :           -
+    (Delta: the difference between total requested memory and actual max usage.)
+    Max Swap :               262 MB
+
+    Max Processes :          4
+    Max Threads :            14
+
+The output (if any) follows:
+
+
+
+cpu time is: 162.625000 
+
+
+PS:
+
+Read file <omp.err> for stderr output of this job.
+
