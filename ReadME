@@ -13,3 +13,8 @@ Add parallelized programe (openMP version) to github.
 Use command "g++ -fopenmp " to compile "cracker_omp.cpp" file and submit bash "crackeromp.bash" to discovery cluster to run.
 
 output file can be found in output folder.
+
+=================================================================
+Update 3/28/2016
+Clean up folder. You can find sequential code in "seq_code" folder and Parallelized code in "par_code" folder.
+
