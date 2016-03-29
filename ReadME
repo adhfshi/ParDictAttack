@@ -18,3 +18,4 @@ output file can be found in output folder.
 Update 3/28/2016
 Clean up folder. You can find sequential code in "seq_code" folder and Parallelized code in "par_code" folder.
 
+Fix errors in SHA256.h file and regenerate correct hash list.
