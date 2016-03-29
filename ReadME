@@ -32,4 +32,11 @@ The projectmpi2.cpp is used to split dictionary to different parts and send them
 1. use "mpiCC projectmpi2.cpp -o projectmpi2" to compile the program.
 2. use projectmpi.bash to run the program.
 
+Please load the following module:
+1. gnu-4.4-compilers 
+2. fftw-3.3.3
+3. platfor-mpi
+4. cuda-7.0
+5. oracle_java-1.7u40
+
 
