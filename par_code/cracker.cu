@@ -90,8 +90,7 @@ __device__ void sha256_transform(SHA256_CTX *ctx, uchar *data){
 
 }
 
-__device__ void sha256_hash(SHA256_CTX *ctx, uchar *data, uchar *hash, int len, int tround){
-	int round = 1;
+__device__ void sha256_hash(SHA256_CTX *ctx, uchar *data, uchar *hash, int len, int round){
 	while (round > 0){
 		//init sha256 data structure
 		ctx->datalen = 0;
@@ -160,8 +159,6 @@ __device__ void sha256_hash(SHA256_CTX *ctx, uchar *data, uchar *hash, int len, 
       		hash[i+28] = (ctx->state[7] >> (24-i*8)) & 0x000000ff;
    		}	
 		round --;
-	
-
 	}
 }
 
