@@ -46,9 +46,6 @@ int main(int argc, char **argv){
 	std::string password;
 	std::vector<std::string> pwarray;
 	unsigned char target[5][32];
-	//unsigned char hash[32];
-	//unsigned char *pw;
-	//SHA256_CTX ctx;
 	float start,end;
 	unsigned long long int dict_size = 0;
 
@@ -76,13 +73,10 @@ int main(int argc, char **argv){
 		#pragma omp for schedule(static)
 		for(int i=0;i<dict_size;i++){
 			//calculate password hash
-			//std::getline(dict1, password);
-			//std::cout<< pwarray.at(i) << std::endl;
-			//std::cout<< i << std::endl;
 			SHA256_CTX ctx;
 			unsigned char hash[32];
 			unsigned char *pw = (unsigned char *)pwarray.at(i).c_str();
-			sha256_hash(&ctx,pw,hash,100000);
+			sha256_hash(&ctx,pw,hash,10000);
 
 			for(int j=0; j<5; j++){
 				if(compare_hash(hash, target[j])){
