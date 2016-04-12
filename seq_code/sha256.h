@@ -80,8 +80,7 @@ void sha256_transform(SHA256_CTX *ctx, uchar data[])
 }  
 
 //add multi round hash function
-void sha256_hash(SHA256_CTX *ctx, uchar data[], uchar hash[], int round){
-	while(round > 0){
+void sha256(SHA256_CTX *ctx, uchar data[], uchar hash[],int len){
 		//init sha256 data structure
 		ctx->datalen = 0;
    		ctx->bitlen[0] = 0;
@@ -97,7 +96,7 @@ void sha256_hash(SHA256_CTX *ctx, uchar data[], uchar hash[], int round){
 	
 		//update
 		uint t,i;
-		uint len = strlen((const char*)data);
+		//uint len = strlen((const char*)data);
    		for (i=0; i < len; ++i) { 
     	  	ctx->data[ctx->datalen] = data[i]; 
       		ctx->datalen++; 
@@ -146,10 +145,17 @@ void sha256_hash(SHA256_CTX *ctx, uchar data[], uchar hash[], int round){
       		hash[i+24] = (ctx->state[6] >> (24-i*8)) & 0x000000ff;
       		hash[i+28] = (ctx->state[7] >> (24-i*8)) & 0x000000ff;
    		}	
+}
+
+void sha256_hash(SHA256_CTX *ctx, uchar data[], uchar hash[], int round){
+	sha256(ctx, data, hash, strlen((const char*)data));
+	while(round >1){
+		//uchar *round_data = (uchar*)malloc(32*sizeof(uchar));
+		//memcpy(round_data,hash,32*sizeof(uchar));
+		sha256(ctx, hash, hash,32);
 		round --;
 	}
 }
-
 
 
 
