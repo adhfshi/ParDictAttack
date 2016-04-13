@@ -219,6 +219,10 @@ void read_hash(char filename[],unsigned char target[5][32]){
 	fclose(rhash);
 }
 
+void cudasafe(cudaError_t error, char* message){
+	if(error!=cudaSuccess) { fprintf(stderr,"ERROR: %s : %i\n",message,error); exit(-1);}
+}
+
 
 //============================================================================
 int main(int argc, char **argv){
@@ -235,7 +239,7 @@ int main(int argc, char **argv){
 //	uchar *dev_result;
 	uchar *dev_target;
 //	uchar *dev_password;
-	//int *dev_pwcount;
+//	int *dev_pwcount;
 
 	if(argc < 2){
 		std::cerr << "need load dictionary!! \n";
@@ -251,10 +255,10 @@ int main(int argc, char **argv){
 //read target hash
 	read_hash(argv[2],target);
 	//copy hash into cuda (maybe into constant memory?)
-	cudaMalloc((void**)&dev_target,32*5*sizeof(uchar));
-	for(int i=0;i<5;i++){
-		cudaMemcpy((void*)&dev_target[32*i],target[i],32*sizeof(uchar),cudaMemcpyHostToDevice);
-	}
+//	cudaMalloc((void**)&dev_target,32*5*sizeof(uchar));
+//	for(int i=0;i<5;i++){
+//		cudaMemcpy((void*)&dev_target[32*i],target[i],32*sizeof(uchar),cudaMemcpyHostToDevice);
+//	}
 
 
 //read from dictionary
@@ -267,51 +271,58 @@ int main(int argc, char **argv){
 		pwarray.push_back(password);
 		tot_dict_size++;
 	}
+	uchar *pwstring = (uchar*)malloc(dict_size*32*sizeof(uchar));
+	int *pw_count = (int*)malloc(dict_size*sizeof(int));
 
 //============================================================
 	for(int lp = 0; lp < tot_dict_size/numThread + 1; lp++){
 //devpassword
-	//variable for GPU
-    uchar *dev_result;
-    uchar *dev_password;
-	int *dev_pwcount;
+		//variable for GPU
+    	uchar *dev_result;
+    	uchar *dev_password;
+		int *dev_pwcount;
 
-	if(lp == tot_dict_size/numThread && tot_dict_size%numThread != 0){
-		dict_size = tot_dict_size % numThread;
-	}
+		if(lp == tot_dict_size/numThread && tot_dict_size%numThread != 0){
+			dict_size = tot_dict_size % numThread;
+		}
 
-	int *pw_count = (int*)malloc(dict_size*sizeof(int));
-	int temp_count = 0;
-	uchar *pwstring = (uchar*)malloc(dict_size*32*sizeof(uchar));
+		//int *pw_count = (int*)malloc(dict_size*sizeof(int));
+		int temp_count = 0;
+		//uchar *pwstring = (uchar*)malloc(dict_size*32*sizeof(uchar));
 
-	for(int i=0; i<dict_size; i++){
-		pw_count[i] = pwarray.at(i+lp*numThread).length();	
-		strcpy((char*)&pwstring[temp_count],pwarray.at(i+lp*numThread).c_str());
-		temp_count += pw_count[i];
-	}
+		for(int i=0; i<dict_size; i++){
+			pw_count[i] = pwarray.at(i+lp*numThread).length();	
+			strcpy((char*)&pwstring[temp_count],pwarray.at(i+lp*numThread).c_str());
+			temp_count += pw_count[i];
+		}
 
-	cudaMalloc((void**)&dev_password,32*dict_size*sizeof(uchar));
-	cudaMemcpy((void*)dev_password,pwstring,32*dict_size*sizeof(uchar),cudaMemcpyHostToDevice);
-	
-	cudaMalloc((void**)&dev_pwcount,dict_size*sizeof(int));
-	cudaMemcpy((void*)dev_pwcount,pw_count,dict_size*sizeof(int),cudaMemcpyHostToDevice);
+		cudasafe( cudaMalloc((void**)&dev_password,32*dict_size*sizeof(uchar)), "cudaMalloc");
+		cudasafe( cudaMemcpy((void*)dev_password,pwstring,32*dict_size*sizeof(uchar),cudaMemcpyHostToDevice), "cudaMemcpy");
 
-	cudaMalloc((void**)&dev_result,32*sizeof(uchar));
+		cudaMalloc((void**)&dev_pwcount,dict_size*sizeof(int));
+		cudaMemcpy((void*)dev_pwcount,pw_count,dict_size*sizeof(int),cudaMemcpyHostToDevice);
+		
+		cudaMalloc((void**)&dev_target,32*5*sizeof(uchar));
+	    for(int i=0;i<5;i++){
+	        cudaMemcpy((void*)&dev_target[32*i],target[i],32*sizeof(uchar),cudaMemcpyHostToDevice);
+    	}
 
-	dim3 DimBlock(1024,1);
-	dim3 DimGrid(55,1);
-	sha256_wrap <<< DimGrid, DimBlock >>> (dev_password, dev_target, dev_pwcount, dev_result);
-	cudaThreadSynchronize();
+		cudaMalloc((void**)&dev_result,32*sizeof(uchar));  
+		cudaMemset(dev_result,0,32*sizeof(uchar));
+		
+		cudaDeviceSynchronize();
+		dim3 DimBlock(1024,1);
+		dim3 DimGrid(55,1);
+		sha256_wrap <<< DimGrid, DimBlock >>> (dev_password, dev_target, dev_pwcount, dev_result);
+		cudaDeviceSynchronize();	
 
-//	cudaEventRecord(stop);	
+		cudaMemcpy(result,dev_result,32*sizeof(uchar),cudaMemcpyDeviceToHost);
 
-	cudaMemcpy(result,dev_result,32*sizeof(uchar),cudaMemcpyDeviceToHost);
-
-	if(strlen((const char*)result)!= 0) 
-		printf("password: %s \n", result);
-	memset(result, 0, strlen((const char*)result));
-
-	free(pw_count); cudaFree(dev_result); cudaFree(dev_password); cudaFree(dev_pwcount);
+		if(strlen((const char*)result)!= 0) 
+			printf("password: %s \n", result);
+		memset(result, 0, strlen((const char*)result));
+		cudaDeviceReset();
+//		cudaFree(dev_result); cudaFree(dev_password); cudaFree(dev_pwcount);
 	}
 
 
