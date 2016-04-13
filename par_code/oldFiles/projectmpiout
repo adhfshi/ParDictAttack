@@ -1,0 +1,120 @@
+Sender: LSF System <lsfadmin@compute-0-005>
+Subject: Job 614201: <Zhiyou-project-mpi> in cluster <mghpcc_cluster1> Done
+
+Job <Zhiyou-project-mpi> was submitted from host <compute-0-001> by user <wang.zhiy> in cluster <mghpcc_cluster1>.
+Job was executed on host(s) <20*compute-0-005>, in queue <ht-10g>, as user <wang.zhiy> in cluster <mghpcc_cluster1>.
+</home/wang.zhiy> was used as the home directory.
+</home/wang.zhiy/project> was used as the working directory.
+Started at Mon Mar 28 20:33:16 2016
+Results reported at Mon Mar 28 20:33:17 2016
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+#BSUB -J Zhiyou-project-mpi
+#BSUB -o projectmpiout
+#BSUB -e projectmpierr
+#BSUB -n 20
+#BUSB -R "span[ptile=5]"
+#BSUB -q ht-10g
+#BSUB cwd /home/wang.zhiy/project
+work=/home/wang.zhiy/project
+
+cd $work
+tempfile1=hostlistrun
+tempfile2=hostlist-tcp
+echo $LSB_MCPU_HOSTS > $tempfile1
+declare -a hosts
+read -a hosts < ${tempfile1}
+for ((i=0; i<${#hosts[@]}; i += 2)) ;
+  do
+   HOST=${hosts[$i]}
+   CORE=${hosts[(($i+1))]}
+   echo $HOST:$CORE >> $tempfile2
+done
+#####################################################
+#####
+###DO NOT EDIT ANYTHING ABOVE THIS LINE#########
+#####################################################
+
+rm -f projectmpiout
+rm -f projectmpierr
+mpirun -np 20 -prot -TCP -lsf ./projectmpi2 10_million_password_list_top_10000.txt
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :               9.91 sec.
+    Max Memory :             14 MB
+    Average Memory :         14.00 MB
+    Total Requested Memory : -
+    Delta Memory :           -
+    (Delta: the difference between total requested memory and actual max usage.)
+    Max Swap :               59 MB
+
+    Max Processes :          1
+    Max Threads :            1
+
+The output (if any) follows:
+
+Host 0 -- ip 10.100.8.45 -- ranks 0 - 19
+
+ host | 0
+======|======
+    0 : SHM
+
+ Prot -  All Intra-node communication is: SHM
+
+10000
+Execution time is : 0.211681s
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+500
+1  douche
+0  downer
+4  darina
+8  chouchou
+13  cardinals
+9  cheerleaers
+18  brook
+2  doom
+16  c2h5oh
+5  daman
+14  captain1
+15  caca
+3  discus
+12  celebrity
+7  clement
+19  brady
+11  charisma
+10  Charles
+17  bubbles1
+6  daisey
+
+
+PS:
+
+Read file <projectmpierr> for stderr output of this job.
+
