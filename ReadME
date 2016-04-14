@@ -39,4 +39,13 @@ Please load the following module:
 4. cuda-7.0
 5. oracle_java-1.7u40
 
+====================================================================
+Update 12/4/2016
+Added MPI+CUDA code, you can find them in "par_code/cudampi"
+To compile and run the program, please follow the below steps:
+1. "mpicc -c mpi.c -o mpi.o" this well compile "mpi.c" file
+2. "nvcc -c crackerMPI.cu -o cracker.o" this will comile .cu file
+3. "mpicc mpi.o cracker.o -L/shared/apps/cuda7.0/lib64 -lcudart -lstdc++ -o final" this will combin mpi file and cuda file
+4. "bsub < cudampi.bash" submit thie job. Please modify the bash file and make sure you put the correct path of both "hash_value.dat1" file and dictionary file. All dictionary files can be found in dictionary folder.
 
+If you can not run the cuda+mpi code, please let me know. And we will keep updating our github repo. 
