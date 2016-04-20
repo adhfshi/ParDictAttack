@@ -215,11 +215,9 @@ void print_hash(unsigned char hash[]){
 }
 
 extern "C" void hash_pairing(uchar *pwarray, uchar *target, int *pwcount, int num){
-	//printf("text: %.20s ",pwarray);
-	//printf("len: %d ", strlen((const char*)target));
-	//print_hash(target);
+
 	uchar *dev_pwarray, *dev_target, *dev_result;
-	uchar *result = new uchar[32]; //printf("tgt len: %d \n", strlen((const char*)target));
+	uchar *result = new uchar[32]; 
 	int *dev_pwcount;
 
 	cudaMalloc((void**)&dev_pwarray,strlen((const char*)pwarray));
@@ -243,99 +241,9 @@ extern "C" void hash_pairing(uchar *pwarray, uchar *target, int *pwcount, int nu
 	cudaMemcpy((void*)result, dev_result, 32*sizeof(uchar), cudaMemcpyDeviceToHost);
 	if(strlen((const char*)result)!=0)
 		printf("password: %s ", result);
-	cudaFree(dev_pwarray); cudaFree(dev_target); cudaFree(dev_result);
+
+	memset(result,0,strlen((const char*) result));
+	cudaDeviceReset();
+	//cudaFree(dev_pwarray); cudaFree(dev_target); cudaFree(dev_result);
 }
 
-/*void read_hash(char filename[],unsigned char target[5][32]){
-	FILE *rhash = fopen(filename,"r+");
-	fread(target[0],1,32,rhash);
-	fread(target[1],1,32,rhash);
-	fread(target[2],1,32,rhash);
-	fread(target[3],1,32,rhash);
-	fread(target[4],1,32,rhash);
-	fclose(rhash);
-}*/
-
-
-//============================================================================
-//int main(int argc, char **argv){
-
-/*void hash_pairing(std::vector<std::string> pwarray, uchar target[5][32]){
-
-	//std::string password;
-	//std::vector<std::string> pwarray;
-	int dict_size;
-	int *pw_count;
-	//uchar target[5][32];
-	uchar result[32]; 
-	
-	//variable for GPU
-	uchar *dev_result;
-	uchar *dev_target;
-	uchar *dev_password;
-	int *dev_pwcount;
-	cudaEvent_t start, stop;
-
-
-//timing program
-//	cudaEventCreate(&start);
-//	cudaEventCreate(&stop);
-	
-//	cudaEventRecord(start);
-//set up round number
-	
-
-
-//init result
-
-	cudaMalloc((void**)&dev_result,32*sizeof(uchar));
-	cudaMemcpy(dev_result,result,32*sizeof(uchar),cudaMemcpyHostToDevice);
-
-
-//read target hash
-	//read_hash(argv[2],target);
-	//copy hash into cuda (maybe into constant memory?)
-	cudaMalloc((void**)&dev_target,32*5*sizeof(uchar));
-	for(int i=0;i<5;i++){
-		cudaMemcpy((void*)&dev_target[32*i],target[i],32*sizeof(uchar),cudaMemcpyHostToDevice);
-	}
-
-
-//read from dictionary
-
-	dict_size = pwarray.size();
-
-//devpassword
-	pw_count = (int*)malloc(dict_size*sizeof(int));
-	int temp_count = 0;
-	uchar *pwstring = (uchar*)malloc(dict_size*32*sizeof(uchar));
-	for(int i=0; i<dict_size; i++){
-		pw_count[i] = pwarray.at(i).length();	
-		strcpy((char*)&pwstring[temp_count],pwarray.at(i).c_str());
-		temp_count += pw_count[i];
-	}
-	cudaMalloc((void**)&dev_password,32*dict_size*sizeof(uchar));
-	cudaMemcpy((void*)dev_password,pwstring,32*dict_size*sizeof(uchar),cudaMemcpyHostToDevice);
-	
-	cudaMalloc((void**)&dev_pwcount,dict_size*sizeof(int));
-	cudaMemcpy((void*)dev_pwcount,pw_count,dict_size*sizeof(int),cudaMemcpyHostToDevice);
-
-
-	dim3 DimBlock(1024,1);
-	dim3 DimGrid(20,1);
-	sha256_wrap <<< DimGrid, DimBlock >>> (dev_password, dev_target, dev_pwcount, dev_result);
-	cudaThreadSynchronize();
-
-	cudaEventRecord(stop);	
-
-	cudaMemcpy(result,dev_result,32*sizeof(bool),cudaMemcpyDeviceToHost);
-	printf("password: %s", result);
-
-	std::cout<<std::endl;
-
-//	float time = 0;
-//	cudaEventElapsedTime(&time,start,stop);
-//	std::cout<<"Total time: "<<time<<" ms"<<std::endl;
-
-	cudaFree(dev_result); cudaFree(dev_target); cudaFree(dev_password);
-}*/
