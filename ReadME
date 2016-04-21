@@ -25,12 +25,8 @@ Update 3/29/2016
 Added cracker.cu file. You can find it in "par_code/cudaonly" folder.
 To compile and run the program, please follow the below steps:
 1. "nvcc -G -g -lineinfo -o crackercu cracker.cu" --- compile the .cu file
-2. "./crackercu $dictionary_path $hash_value.dat_path" --- run the program. Please use "10_million_password_list_top_10000.txt" as the dictionary and "hash_value.dat" as the input hash value. Make sure you put a correct path.
-
-Added MPI code. You can find them in "par_code" folder.
-The projectmpi2.cpp is used to split dictionary to different parts and send them to processors.
-1. use "mpiCC projectmpi2.cpp -o projectmpi2" to compile the program.
-2. use projectmpi.bash to run the program.
+2. "bsub -Is -XF -q par-gpu-2 -n 1 /bin/bash" -- use par-gpu-2 queue since our program designed for Tesla K40 GPU (useing K20 GPU will lead a memory leak error)
+3. "./crackercu $dictionary_path $hash_value.dat_path" --- run the program. Please use "10_million_password_list_top_10000.txt" as the dictionary and "hash_value.dat" as the input hash value. Make sure you put a correct path.
 
 Please load the following module:
 1. gnu-4.4-compilers 
