@@ -17,6 +17,7 @@ letmein
 696969
 shadow
 master
+husky
 666666
 qwertyuiop
 123321
