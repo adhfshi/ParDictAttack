@@ -22,7 +22,7 @@ Fix errors in SHA256.h file and regenerate correct hash list.
 
 ==================================================================
 Update 3/29/2016
-Added cracker.cu file. You can find it in "par_code/" folder.
+Added cracker.cu file. You can find it in "par_code/cudaonly" folder.
 To compile and run the program, please follow the below steps:
 1. "nvcc -G -g -lineinfo -o crackercu cracker.cu" --- compile the .cu file
 2. "./crackercu $dictionary_path $hash_value.dat_path" --- run the program. Please use "10_million_password_list_top_10000.txt" as the dictionary and "hash_value.dat" as the input hash value. Make sure you put a correct path.
